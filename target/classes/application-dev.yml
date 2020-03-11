@@ -1,0 +1,14 @@
+hostname:
+  kafka: 127.0.0.1
+
+spring:
+  kafka:
+    bootstrap-servers: ${hostname.kafka}:9093
+    listener:
+      concurrency: 3
+    producer:
+      batch-size: 1000
+    consumer:
+      group-id: myGroup1
+    template:
+      default-topic: iot

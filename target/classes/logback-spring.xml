@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="6000">
+
+
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %t %5p %c:%L - %m%n"/>
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+
+
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<Encoding>UTF_8</Encoding>-->
+        <File>/data/log/broker_def.log</File>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>
+                /data/log/broker.%d{yyyy-MM-dd}.%i.log
+            </FileNamePattern>
+            <!-- 多久后自动清楚旧的日志文件,单位:日 -->
+            <MaxHistory>7</MaxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 默认值是 100MB,文档最大值 -->
+                <MaxFileSize>100MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %t %5p %c:%L - %m%n</pattern>-->
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<encoding>UTF_8</encoding>-->
+        <File>/data/errorlog/membership_err.log</File>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>
+                /data/errorlog/broker.%d{yyyy-MM-dd}.%i.log
+            </FileNamePattern>
+            <!-- 多久后自动清楚旧的日志文件,单位:日 -->
+            <MaxHistory>7</MaxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 默认值是 10MB,文档最大值 -->
+                <MaxFileSize>100MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <springProfile name="dev">
+        <logger name="com.megvii.smartretail.bc.broker.mapper" level="info" additivity="false">
+            <appender-ref ref="Console" />
+        </logger>
+        <logger name="com.ibatis" level="info" />
+        <logger name="com.ibatis.common.jdbc.SimpleDataSource" level="info" />
+        <logger name="com.ibatis.common.jdbc.ScriptRunner" level="info" />
+        <logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate" level="info" />
+        <logger name="java.sql.Connection" level="info" />
+        <logger name="java.sql.Statement" level="info" />
+        <logger name="java.sql.PreparedStatement" level="info" />
+        <root level="info">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="FILE_INFO"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+
+        <root level="INFO">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="FILE_INFO"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
+    </springProfile>
+
+</configuration>

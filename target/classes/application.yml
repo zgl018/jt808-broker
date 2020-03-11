@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: dev
+
+  application:
+    name: service-broker
+
+server:
+  port: 8769
+
+logging:
+  config: classpath:logback-spring.xml
+
+netty:
+  server:
+    port: 11211
