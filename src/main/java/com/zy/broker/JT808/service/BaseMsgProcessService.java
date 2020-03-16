@@ -1,8 +1,8 @@
 package com.zy.broker.JT808.service;
 
 
-import com.zy.broker.JT808.JT808Session;
-import com.zy.broker.server.SessionManager;
+import com.zy.broker.utils.CommonSession;
+import com.zy.broker.utils.DevSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -15,10 +15,10 @@ public class BaseMsgProcessService {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	protected SessionManager sessionManager;
+	protected DevSessionManager devSessionManager;
 
 	public BaseMsgProcessService() {
-		this.sessionManager = SessionManager.getInstance();
+		this.devSessionManager = DevSessionManager.getInstance();
 	}
 
 	protected ByteBuf getByteBuf(byte[] arr) {
@@ -35,7 +35,7 @@ public class BaseMsgProcessService {
 	}
 
 	protected int getFlowId(Channel channel, int defaultValue) {
-		JT808Session session = this.sessionManager.findBySessionId(JT808Session.buildId(channel));
+		CommonSession session = this.devSessionManager.findBySessionId(CommonSession.buildId(channel));
 		if (session == null) {
 			return defaultValue;
 		}

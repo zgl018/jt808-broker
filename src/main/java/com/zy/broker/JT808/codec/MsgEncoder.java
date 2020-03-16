@@ -1,11 +1,11 @@
 package com.zy.broker.JT808.codec;
 
 
-import com.zy.broker.JT808.JT808Session;
 import com.zy.broker.JT808.PackageData;
 import com.zy.broker.JT808.TPMSConsts;
 import com.zy.broker.JT808.util.BitOperator;
 import com.zy.broker.JT808.util.JT808ProtocolUtils;
+import com.zy.broker.utils.CommonSession;
 import com.zy.broker.vo.req.TerminalRegisterMsg;
 import com.zy.broker.vo.resp.ServerCommonRespMsgBody;
 import com.zy.broker.vo.resp.TerminalRegisterMsgRespBody;
@@ -72,10 +72,10 @@ public class MsgEncoder {
 		return this.doEncode(headerAndBody, checkSum);
 	}
 
-	public byte[] encode4ParamSetting(byte[] msgBodyBytes, JT808Session session) throws Exception {
+	public byte[] encode4ParamSetting(byte[] msgBodyBytes, CommonSession session) throws Exception {
 		// 消息头
 		int msgBodyProps = this.jt808ProtocolUtils.generateMsgBodyProps(msgBodyBytes.length, 0b000, false, 0);
-		byte[] msgHeader = this.jt808ProtocolUtils.generateMsgHeader(session.getTerminalPhone(),
+		byte[] msgHeader = this.jt808ProtocolUtils.generateMsgHeader(session.getDevId(),
 				TPMSConsts.cmd_terminal_param_settings, msgBodyBytes, msgBodyProps, session.currentFlowId());
 		// 连接消息头和消息体
 		byte[] headerAndBody = this.bitOperator.concatAll(msgHeader, msgBodyBytes);

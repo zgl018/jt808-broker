@@ -1,9 +1,9 @@
-### 此模块为服务器协议接收模块
+### 服务器协议接收模块
 
-***包模块说明***
+***说明***
 >com.zy.broker
 >>utils
->>>DevSessionManager 平台会话管理，JT808尚未使用
+>>>DevSessionManager 平台会话管理
 -------------------------
 >>controller
 此模块包含普通的http接口示例
@@ -25,6 +25,6 @@
 利用spring注解启动netty
 ---------------------------------------
 >>>SessionManager
-管理channel和id对应关系
+管理channel和id对应关系, 本工程中尚未使用（参考的相关代码中使用的，供参考）
 --------------------------------------
 这个模块同时启动了一个http端口和一个netty端口，配置在application.properties中

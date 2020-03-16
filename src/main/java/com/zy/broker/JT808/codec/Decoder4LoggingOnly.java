@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * 该解码器只是为了自己日志所用,没其他作用.<br>
  * 最终删除
- * 
- * @author hylexus
  *
  */
 public class Decoder4LoggingOnly extends ByteToMessageDecoder {

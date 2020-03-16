@@ -2,10 +2,10 @@ package com.zy.broker.JT808.service;
 
 
 import com.alibaba.fastjson.JSON;
-import com.zy.broker.JT808.JT808Session;
 import com.zy.broker.JT808.PackageData;
 import com.zy.broker.JT808.codec.MsgEncoder;
-import com.zy.broker.server.SessionManager;
+import com.zy.broker.utils.CommonSession;
+import com.zy.broker.utils.DevSessionManager;
 import com.zy.broker.vo.req.LocationInfoUploadMsg;
 import com.zy.broker.vo.req.TerminalAuthenticationMsg;
 import com.zy.broker.vo.req.TerminalRegisterMsg;
@@ -19,24 +19,26 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private MsgEncoder msgEncoder;
-    private SessionManager sessionManager;
+    private final DevSessionManager devSessionManager;
 
     public TerminalMsgProcessService() {
         this.msgEncoder = new MsgEncoder();
-        this.sessionManager = SessionManager.getInstance();
+        this.devSessionManager = DevSessionManager.getInstance();
     }
 
     public void processRegisterMsg(TerminalRegisterMsg msg) throws Exception {
         log.debug("终端注册:{}", JSON.toJSONString(msg,true));
 
-        final String sessionId = JT808Session.buildId(msg.getChannel());
-        JT808Session session = sessionManager.findBySessionId(sessionId);
+        final String sessionId = CommonSession.buildId(msg.getChannel());
+        CommonSession session = devSessionManager.findBySessionId(sessionId);
         if (session == null) {
-            session = JT808Session.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
+            session = CommonSession.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
         }
-        session.setAuthenticated(true);
-        session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
-        sessionManager.put(session.getId(), session);
+        // 用于鉴权注册的，暂未实现
+        // session.setAuthenticated(true);
+        // jt808中将手机号作为devId
+        session.setDevId(msg.getMsgHeader().getTerminalPhone());
+        devSessionManager.put(session.getId(), session);
 
         TerminalRegisterMsgRespBody respMsgBody = new TerminalRegisterMsgRespBody();
         respMsgBody.setReplyCode(TerminalRegisterMsgRespBody.success);
@@ -54,14 +56,16 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
         System.out.println("终端鉴权:"+JSON.toJSONString(msg));
 
-        final String sessionId = JT808Session.buildId(msg.getChannel());
-        JT808Session session = sessionManager.findBySessionId(sessionId);
+        final String sessionId = CommonSession.buildId(msg.getChannel());
+        CommonSession session = devSessionManager.findBySessionId(sessionId);
         if (session == null) {
-            session = JT808Session.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
+            session = CommonSession.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
         }
-        session.setAuthenticated(true);
-        session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
-        sessionManager.put(session.getId(), session);
+        // 用于鉴权注册的，暂未实现
+        // session.setAuthenticated(true);
+        // jt808中将手机号作为devId
+        session.setDevId(msg.getMsgHeader().getTerminalPhone());
+        devSessionManager.put(session.getId(), session);
 
         ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody();
         respMsgBody.setReplyCode(ServerCommonRespMsgBody.success);

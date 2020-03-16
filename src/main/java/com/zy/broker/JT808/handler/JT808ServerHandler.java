@@ -1,15 +1,13 @@
 package com.zy.broker.JT808.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.zy.broker.JT808.JT808Session;
 import com.zy.broker.JT808.PackageData;
 import com.zy.broker.JT808.TPMSConsts;
 import com.zy.broker.JT808.codec.MsgDecoder;
 import com.zy.broker.JT808.service.TerminalMsgProcessService;
 import com.zy.broker.JT808.util.JT808ProtocolUtils;
-import com.zy.broker.server.SessionManager;
-import com.zy.broker.utils.transferData;
+import com.zy.broker.utils.CommonSession;
+import com.zy.broker.utils.DevSessionManager;
 import com.zy.broker.vo.req.LocationInfoUploadMsg;
 import com.zy.broker.vo.req.TerminalAuthenticationMsg;
 import com.zy.broker.vo.req.TerminalRegisterMsg;
@@ -26,19 +24,19 @@ import lombok.extern.slf4j.Slf4j;
 @ChannelHandler.Sharable
 public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private final SessionManager sessionManager;
     private final MsgDecoder decoder;
+    private final DevSessionManager devSessionManager;
     private TerminalMsgProcessService msgProcessService;
     private JT808ProtocolUtils protocolUtils = new JT808ProtocolUtils();
 
     public JT808ServerHandler() {
-        this.sessionManager = SessionManager.getInstance();
+        this.devSessionManager = DevSessionManager.getInstance();
         this.decoder = new MsgDecoder();
         this.msgProcessService = new TerminalMsgProcessService();
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException { // (2)
         try {
             ByteBuf buf = (ByteBuf) msg;
             if (buf.readableBytes() <= 0) {
@@ -48,7 +46,7 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
 
             byte[] bs = new byte[buf.readableBytes()];
             buf.readBytes(bs);
-
+            // 消息转义
             bs = this.protocolUtils.doEscape4Receive(bs, 0, bs.length);
             // 字节数据转换为针对于808消息结构的实体类
             PackageData pkg = this.decoder.bytes2PackageData(bs);
@@ -128,6 +126,7 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
             log.info(">>>>>[收到位置信息],电话={},流水号={}", header.getTerminalPhone(), header.getFlowId());
             try {
                 LocationInfoUploadMsg locationInfoUploadMsg = this.decoder.toLocationInfoUploadMsg(packageData);
+
                 System.out.println("位置信息:"+JSON.toJSONString(locationInfoUploadMsg));
 
                 this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
@@ -153,17 +152,17 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        JT808Session session = JT808Session.buildSession(ctx.channel());
-        sessionManager.put(session.getId(), session);
-        log.debug("终端连接:{}", session);
+        CommonSession session = CommonSession.buildSession(ctx.channel());
+        devSessionManager.put(session.getId(), session);
+        log.info("JT808终端连接:{}", session);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         final String sessionId = ctx.channel().id().asLongText();
-        JT808Session session = sessionManager.findBySessionId(sessionId);
-        this.sessionManager.removeBySessionId(sessionId);
-        log.debug("终端断开连接:{}", session);
+        CommonSession session = devSessionManager.findBySessionId(sessionId);
+        this.devSessionManager.removeBySessionId(sessionId);
+        log.info("JT808终端断开连接:{}", session);
         ctx.channel().close();
         // ctx.close();
     }
@@ -173,8 +172,8 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
         if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
-                JT808Session session = this.sessionManager.removeBySessionId(JT808Session.buildId(ctx.channel()));
-                log.error("服务器主动断开连接:{}", session);
+                CommonSession session = this.devSessionManager.removeBySessionId(CommonSession.buildId(ctx.channel()));
+                log.error("JT808服务器主动断开连接:{}", session);
                 ctx.close();
             }
         }
@@ -190,4 +189,3 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
 
 
 }
-

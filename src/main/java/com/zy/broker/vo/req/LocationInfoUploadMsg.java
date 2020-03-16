@@ -8,8 +8,6 @@ import java.util.Date;
 /**
  * 位置信息汇报消息
  *
- * @author hylexus
- *
  */
 public class LocationInfoUploadMsg extends PackageData {
 	// 告警信息

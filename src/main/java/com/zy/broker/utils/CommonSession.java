@@ -11,8 +11,9 @@ public class CommonSession {
     private String devId;
     // channel
     private Channel channel = null;
-    // private ChannelGroup channelGroup = new
-    // DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    // jt808 消息ID
+    // 其他协议不用
+    private int currentFlowId = 0;
     // 客户端上次的连接时间，该值改变的情况:
     // 1. terminal --> server 心跳包
     // 2. terminal --> server 数据包
@@ -99,6 +100,13 @@ public class CommonSession {
     @Override
     public String toString() {
         return "Session [id=" + id + ", devId=" + devId + ", channel=" + channel + "]";
+    }
+
+    // JT808使用
+    public synchronized int currentFlowId() {
+        if (currentFlowId >= 0xffff)
+            currentFlowId = 0;
+        return currentFlowId++;
     }
 
 }
