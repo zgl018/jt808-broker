@@ -83,7 +83,8 @@ public class JT808ProtocolUtils {
 	 * 发送消息时转义<br>
 	 * 
 	 * <pre>
-	 *  0x7e <====> 0x7d02
+	 *  0x7e ====> 0x7d02
+	 *  0x7d ====> 0x7d01
 	 * </pre>
 	 * 
 	 * @param bs
