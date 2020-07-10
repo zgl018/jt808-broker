@@ -40,8 +40,9 @@ public class NettyServer {
                 .channel(NioServerSocketChannel.class)
                 .localAddress(new InetSocketAddress(nettyPort))
                 .option(ChannelOption.SO_BACKLOG, 128)
-                //保持长连接
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, false)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_REUSEADDR, true)
                 .childHandler(new JT808Initializer());
 
         ChannelFuture future = bootstrap.bind().sync();

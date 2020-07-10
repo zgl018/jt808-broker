@@ -167,18 +167,6 @@ public class JT808ServerHandler extends ChannelInboundHandlerAdapter {
         // ctx.close();
     }
 
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
-            IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.READER_IDLE) {
-                CommonSession session = this.devSessionManager.removeBySessionId(CommonSession.buildId(ctx.channel()));
-                log.error("JT808服务器主动断开连接:{}", session);
-                ctx.close();
-            }
-        }
-    }
-
     private void release(Object msg) {
         try {
             ReferenceCountUtil.release(msg);
